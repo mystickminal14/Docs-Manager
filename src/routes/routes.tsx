@@ -1,10 +1,29 @@
-import { createBrowserRouter,  } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import type { ReactNode } from "react";
+
 import AppLayout from "../components/layout/AppLayout";
+
 import NotFoundPage from "../components/NoRouteFound";
 import LoginPage from "../login/page/LoginPage";
 import AdminPage from "../admin/AdminPage";
-import { RoleProtectedRoute } from "./ProtectedRoute";
-import UserDashboard from "../user/UserDashboard";
+
+
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
+
+const LoginRoute = () => {
+  // return <Navigate to="/app/dashboard" />;
+  // const token = localStorage.getItem("token");
+  // if (token) {
+  //   return <Navigate to="/app/dashboard" replace />;
+  // }
+  // return <LoginPage />;
+};
 
 const router = createBrowserRouter([
   {
@@ -15,29 +34,20 @@ const router = createBrowserRouter([
     path: "*",
     element: <NotFoundPage />,
   },
+  
   {
     path: "/app",
-    element: <AppLayout />,
+    element: (
+        <AppLayout />
+    ),
     children: [
       {
         path: "dashboard",
-        element: (
-          <RoleProtectedRoute allowedRoles={[ "user"]}>
-            <UserDashboard />
-          </RoleProtectedRoute>
-        ),
+        element: <AdminPage />,
       },
-      {
-        path: "admin",
-        element: (
-          <RoleProtectedRoute allowedRoles={["admin"]}>
-            <AdminPage />
-          </RoleProtectedRoute>
-        ),
-      },
-      {
-        path: "unauthorized",
-        element: <div>Unauthorized Access</div>,
+     {
+        path: "users",
+        element: <AdminPage />,
       },
     ],
   },
