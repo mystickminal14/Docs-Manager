@@ -1,46 +1,55 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
+import type { ReactNode } from "react";
+
+import AppLayout from "../components/layout/AppLayout";
+
+import NotFoundPage from "../components/NoRouteFound";
 import LoginPage from "../login/page/LoginPage";
-import RegisterPage from './../login/page/Register';
-import ProtectedRoute from "./ProtectedRoute";
-import GameDashboard from "../game/components/GameDashboard";
+import AdminPage from "../admin/AdminPage";
 
 
-const LoginRoute = () => {
-  const accessToken = localStorage.getItem("accessToken");
-  if (accessToken) {
-    return <Navigate to="/app/game/dashboard" replace />;
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return <Navigate to="/" replace />;
   }
-  return <LoginPage />;
+  return children;
 };
 
-const RegisterRoute = () => {
-  const accessToken = localStorage.getItem("accessToken");
-  if (accessToken) {
-    return <Navigate to="/app/game/dashboard" replace />;
-  }
-  return <RegisterPage />;
+const LoginRoute = () => {
+  // return <Navigate to="/app/dashboard" />;
+  // const token = localStorage.getItem("token");
+  // if (token) {
+  //   return <Navigate to="/app/dashboard" replace />;
+  // }
+  // return <LoginPage />;
 };
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <LoginRoute />,
-  },
-  {
-    path: "/register",
-    element: <RegisterRoute />,
-  },
-  {
-    path: "/app/game/dashboard",
-    element: (
-      <ProtectedRoute>
-        <GameDashboard />
-      </ProtectedRoute>
-    ),
+    element: <LoginPage />,
   },
   {
     path: "*",
-    element: <div>404 - Page Not Found</div>,
+    element: <NotFoundPage />,
+  },
+  
+  {
+    path: "/app",
+    element: (
+        <AppLayout />
+    ),
+    children: [
+      {
+        path: "dashboard",
+        element: <AdminPage />,
+      },
+     {
+        path: "users",
+        element: <AdminPage />,
+      },
+    ],
   },
 ]);
 

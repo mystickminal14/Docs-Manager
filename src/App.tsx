@@ -1,7 +1,14 @@
+import { RouterProvider } from "react-router-dom"
+import ContextApp from "./context/ContextApp"
+import router from "./routes/routes";
+
 
 function App() {
-  return (
-    <></>
+  return (<>
+    <ContextApp>
+      <RouterProvider router={router} />
+    </ContextApp>
+  </>
   )
 }
 
