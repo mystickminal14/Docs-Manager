@@ -6,31 +6,26 @@ import type { LoginData } from "../types/auth";
 import { LoginEndPoint } from "../services/authService";
 
 export const useLogin = () => {
-  const { showToast, setUser } = useAppContext();
+  const { showToast,  } = useAppContext();
   const navigate = useNavigate();
 
   return useMutation({
     mutationFn: (user: LoginData) => LoginEndPoint.post(user),
-
     onSuccess: (result: any) => {
       const data = result?.data;
 
-      // Handle API-level error responses
       if (data?.error) {
         showToast(data.error, "error");
         return;
       }
 
-      if (data?.role ) {
+      if (data?.role) {
         console.log("Role:", data.role);
 
-        // Save user data in local storage
-        localStorage.setItem("user", JSON.stringify(data.user));
-        setUser(data.user);
-
+        localStorage.setItem("role", data.role); // Store role separately
+        
         showToast(data.message || "Login successful!", "success");
 
-        // Navigate based on role
         const role = data.role.toLowerCase();
         if (role === "admin") {
           navigate("/app/admin");

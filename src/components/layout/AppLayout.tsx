@@ -8,11 +8,7 @@ const AppLayout: React.FC = () => {
   const [sideBarCollapsed, setSideBarCollapsed] = useState(false);
   const appContext = useContext(AppContext);
   if (!appContext) throw new Error("AppContext not found");
-
-  const {  isOnline } = appContext;
-
-
-
+  const { isOnline } = appContext;
   useEffect(() => {
     const handleResize = () => {
       setSideBarCollapsed(window.innerWidth < 768);
@@ -29,7 +25,6 @@ const AppLayout: React.FC = () => {
       <div className="flex h-screen overflow-hidden">
         <SideBar
           collapsed={sideBarCollapsed}
-          
         />
         <div className="flex-1 flex flex-col overflow-hidden">
 

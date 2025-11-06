@@ -1,3 +1,4 @@
+// src/context/ContextApp.tsx
 import { createContext, type ReactNode, useEffect, useState, useContext } from "react";
 import { ToastContainer, toast, type ToastOptions } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,7 +10,6 @@ interface AppContextType {
   ) => void;
   isOnline: boolean;
   user: any | null;
-  setUser: (user: any | null) => void;
   logout: () => void;
 }
 
@@ -42,9 +42,8 @@ export default function ContextApp({ children }: ContextAppProps) {
     window.addEventListener("offline", handleOffline);
 
     // Check if user is logged in from localStorage
-    const token = localStorage.getItem("accessToken");
     const userData = localStorage.getItem("user");
-    if (token && userData) {
+    if (userData) {
       setUser(JSON.parse(userData));
     }
 
@@ -55,9 +54,10 @@ export default function ContextApp({ children }: ContextAppProps) {
   }, []);
 
   const logout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    // Clear all authentication data
     localStorage.removeItem("user");
+    localStorage.removeItem("role");
+    localStorage.removeItem("isAuthenticated");
     setUser(null);
     showToast("Logged out successfully", "success");
   };
@@ -86,7 +86,7 @@ export default function ContextApp({ children }: ContextAppProps) {
   };
 
   return (
-    <AppContext.Provider value={{ showToast, isOnline, user, setUser, logout }}>
+    <AppContext.Provider value={{ showToast, isOnline, user, logout }}>
       <ToastContainer />
       {children}
     </AppContext.Provider>
