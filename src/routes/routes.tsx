@@ -6,6 +6,7 @@ import AppLayout from "../components/layout/AppLayout";
 import NotFoundPage from "../components/NoRouteFound";
 import LoginPage from "../login/page/LoginPage";
 import AdminPage from "../admin/AdminPage";
+import ManageFiles from "../admin/ManageFiles";
 
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
@@ -34,18 +35,18 @@ const router = createBrowserRouter([
     path: "*",
     element: <NotFoundPage />,
   },
-  
+
   {
     path: "/app",
     element: (
-        <AppLayout />
+      <AppLayout />
     ),
     children: [
       {
         path: "dashboard",
-        element: <AdminPage />,
+        element: <ManageFiles />,
       },
-     {
+      {
         path: "users",
         element: <AdminPage />,
       },
