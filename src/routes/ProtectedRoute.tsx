@@ -18,7 +18,7 @@ export const RoleProtectedRoute = ({ children, allowedRoles }: Props) => {
     return <Navigate to="/" replace />;
   }
 
-  if (!allowedRoles.includes(profile.role??"")) {
+  if (!allowedRoles.includes(profile.role ?? "")) {
     return <Navigate to="/app/unauthorized" replace />;
   }
 

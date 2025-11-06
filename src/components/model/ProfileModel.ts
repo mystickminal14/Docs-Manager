@@ -1,3 +1,8 @@
 export interface ProfileModel {
-  role?: string;
+   id: number;
+   fullName: string;
+   email: string;
+   password: string;
+   role: "admin" | "user";
+   status: "active" | "inactive";
 }

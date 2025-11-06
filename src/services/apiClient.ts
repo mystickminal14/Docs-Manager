@@ -1,7 +1,7 @@
+// src/api/APIClient.ts
 import axios, { type AxiosRequestConfig } from "axios";
 import { BASE_URL } from "../constants";
 
-// Create instance
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -9,11 +9,7 @@ const axiosInstance = axios.create({
     "Content-Type": "application/json",
   },
   timeout: 5000,
-  withCredentials: true, // ✅ allow cookies to be sent automatically
-});
-
-axiosInstance.interceptors.request.use((config) => {
-  return config;
+  withCredentials: true, // ✅ important for cookie-based sessions
 });
 
 class APIClient<T> {
