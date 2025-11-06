@@ -18,9 +18,7 @@ const useAddUser = () => {
     onSuccess: (data: User) => {
       if (data) {
         showToast("User Created successfully!", "success");
-        // ✅ Invalidate queries so UI refreshes automatically
         queryClient.invalidateQueries({ queryKey: [PROFILE_CACHE_KEY] });
-
       }
     },
     onError: (error: any) => {

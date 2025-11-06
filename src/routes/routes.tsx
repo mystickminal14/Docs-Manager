@@ -36,6 +36,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "manage-files",
+        element: (
+          <RoleProtectedRoute allowedRoles={["admin"]}>
+            <AdminPage />
+          </RoleProtectedRoute>
+        ),
+      },
+      {
         path: "unauthorized",
         element: <div>Unauthorized Access</div>,
       },

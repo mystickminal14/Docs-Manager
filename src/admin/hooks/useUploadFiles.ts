@@ -1,7 +1,8 @@
 // src/hooks/useFileUpload.ts
 import { useMutation } from "@tanstack/react-query";
-import { FileEndpoint } from "../user/services/FileEndpoint"; // adjust import path
-import { useAppContext } from "../context/ContextApp"; // for toasts
+import { useAppContext } from "../../context/ContextApp";
+import { FileEndpoint } from "../services/fileService";
+
 
 export const useFileUpload = () => {
   const { showToast } = useAppContext();
