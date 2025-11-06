@@ -1,6 +1,6 @@
 // src/auth/types/auth.ts
 export interface LoginData {
-  email: string;
+  username: string;
   password: string;
 }
 

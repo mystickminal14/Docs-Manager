@@ -12,9 +12,7 @@ const axiosInstance = axios.create({
   withCredentials: true, // ✅ allow cookies to be sent automatically
 });
 
-// You don't need to manually attach token for cookies
 axiosInstance.interceptors.request.use((config) => {
-  // No manual token injection — cookies will be handled by browser
   return config;
 });
 

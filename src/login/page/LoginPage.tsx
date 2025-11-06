@@ -6,7 +6,7 @@ import type { LoginData } from "../types/auth";
 import logo from "../../assets/logo.png";
 const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState<LoginData>({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -37,10 +37,10 @@ const LoginPage: React.FC = () => {
 
           <input
             type="text"
-            name="email"
-            value={formData.email}
+            name="username"
+            value={formData.username}
             onChange={handleChange}
-            placeholder="Email Address"
+            placeholder="username "
             className="w-full p-3 border-b-2 border-gray-300  bg-transparent text-gray-800  focus:border-blue-500 outline-none"
             required
           />

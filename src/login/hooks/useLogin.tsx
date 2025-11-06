@@ -8,11 +8,10 @@ import { LoginEndPoint } from "../services/authService";
 export const useLogin = () => {
   const { showToast,  } = useAppContext();
   const navigate = useNavigate();
-
   return useMutation({
     mutationFn: (user: LoginData) => LoginEndPoint.post(user),
     onSuccess: (result: any) => {
-      const data = result?.data;
+      const data = result;
 
       if (data?.error) {
         showToast(data.error, "error");

@@ -22,13 +22,17 @@ const router = createBrowserRouter([
       {
         path: "dashboard",
         element: (
+          <RoleProtectedRoute allowedRoles={[ "user"]}>
             <UserDashboard />
+          </RoleProtectedRoute>
         ),
       },
       {
         path: "admin",
         element: (
+          <RoleProtectedRoute allowedRoles={["admin"]}>
             <AdminPage />
+          </RoleProtectedRoute>
         ),
       },
       {

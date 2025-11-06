@@ -1,4 +1,4 @@
 import APIClient from "../../services/apiClient";
 import type { ProfileModel } from "../model/ProfileModel";
 
-export const ProfileEndpoint=new APIClient<ProfileModel>('/me')
+export const ProfileEndpoint=new APIClient<ProfileModel>('/users/me')
