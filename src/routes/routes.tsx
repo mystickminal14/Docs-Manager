@@ -6,7 +6,7 @@ import AppLayout from "../components/layout/AppLayout";
 import NotFoundPage from "../components/NoRouteFound";
 import LoginPage from "../login/page/LoginPage";
 import AdminPage from "../admin/AdminPage";
-import ManageFiles from "../admin/ManageFiles";
+import ManageFiles from "../admin/manageFiles/pages/ManageFiles";
 
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
