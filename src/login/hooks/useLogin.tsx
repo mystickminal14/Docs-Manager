@@ -2,7 +2,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/ContextApp";
-import type {  LoginData } from "../types/auth";
+import type { LoginData } from "../types/auth";
 import { LoginEndPoint } from "../services/authService";
 
 export const useLogin = () => {
@@ -11,23 +11,44 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: (user: LoginData) => LoginEndPoint.post(user),
+
     onSuccess: (result: any) => {
       const data = result?.data;
-      if (data?.accessToken) {
-        localStorage.setItem("accessToken", data.accessToken);
-        localStorage.setItem("refreshToken", data.accessToken);
+
+      // Handle API-level error responses
+      if (data?.error) {
+        showToast(data.error, "error");
+        return;
+      }
+
+      if (data?.role ) {
+        console.log("Role:", data.role);
+
+        // Save user data in local storage
         localStorage.setItem("user", JSON.stringify(data.user));
         setUser(data.user);
+
         showToast(data.message || "Login successful!", "success");
-        if (navigate) {
-          navigate("/app/game/dashboard");
+
+        // Navigate based on role
+        const role = data.role.toLowerCase();
+        if (role === "admin") {
+          navigate("/app/admin");
+        } else if (role === "user") {
+          navigate("/app/dashboard");
+        } else {
+          showToast("Unexpected role received from server!", "error");
         }
       } else {
-        showToast("No token received from server!", "error");
+        showToast("Unexpected response from server!", "error");
       }
     },
+
     onError: (error: any) => {
-      const errorMsg = error?.response?.data?.message || error.message || "Login failed!";
+      const errorMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Login failed!";
       showToast(errorMsg, "error");
     },
   });

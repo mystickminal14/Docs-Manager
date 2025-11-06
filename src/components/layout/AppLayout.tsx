@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 import SideBar from "./SideBar";
 import { AppContext } from "../../context/ContextApp";
 import { Outlet } from "react-router-dom";
@@ -8,17 +7,11 @@ import OfflinePage from "../OfflineOverlay";
 const AppLayout: React.FC = () => {
   const [sideBarCollapsed, setSideBarCollapsed] = useState(false);
   const appContext = useContext(AppContext);
-  const location = useLocation();
   if (!appContext) throw new Error("AppContext not found");
 
-  const {  showToast, isOnline } = appContext;
+  const {  isOnline } = appContext;
 
-  useEffect(() => {
-  }, [location.pathname, ]);
 
-  useEffect(() => {
-    
-  }, [ showToast]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -36,8 +29,7 @@ const AppLayout: React.FC = () => {
       <div className="flex h-screen overflow-hidden">
         <SideBar
           collapsed={sideBarCollapsed}
-          profile={ null}
-          isLoading={false}
+          
         />
         <div className="flex-1 flex flex-col overflow-hidden">
 

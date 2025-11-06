@@ -6,7 +6,7 @@ import type { LoginData } from "../types/auth";
 import logo from "../../assets/logo.png";
 const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState<LoginData>({
-    username: "",
+    email: "",
     password: "",
   });
 
@@ -29,18 +29,18 @@ const LoginPage: React.FC = () => {
   return (
     <div className="w-full font-poppins min-h-screen flex items-center justify-center bg-gray-100 transition-colors duration-500">
       <div className="w-full max-w-md bg-white  rounded-2xl shadow-xl p-8 sm:p-10 flex flex-col items-center">
-        <img src={logo} alt="Logo" className="w-40  mb-4 object-fit-cover" />
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800  mb-2 tracking-wide">
+        <img src={logo} alt="Logo" className="w-48  mb-4 object-fit-cover" />
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800   tracking-wide">
           Login
         </h2>
         <form onSubmit={handleSubmit} className="w-full space-y-5">
-          
+
           <input
             type="text"
-            name="username"
-            value={formData.username}
+            name="email"
+            value={formData.email}
             onChange={handleChange}
-            placeholder="Username"
+            placeholder="Email Address"
             className="w-full p-3 border-b-2 border-gray-300  bg-transparent text-gray-800  focus:border-blue-500 outline-none"
             required
           />

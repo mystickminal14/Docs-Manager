@@ -2,7 +2,6 @@ import { FaChevronDown, FaFolderOpen, FaUsers } from "react-icons/fa";
 import { useEffect, useState, useContext } from "react";
 import appLogo from "../../assets/logo.png";
 import { AppContext } from "../../context/ContextApp";
-import type { ProfileModel } from "../model/ProfileModel";
 import { useLocation, useNavigate } from "react-router-dom";
 interface MenuItem {
   id: string;
@@ -15,8 +14,7 @@ interface MenuItem {
 interface SideBarProps {
   collapsed: boolean;
   onCollapse?: () => void;
-  profile: ProfileModel | null;
-  isLoading: boolean;
+  
 }
 
 const menuItems: MenuItem[] = [
