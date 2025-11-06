@@ -1,4 +1,4 @@
-// src/api/APIClient.ts
+// src/services/apiClient.ts
 import axios, { type AxiosRequestConfig } from "axios";
 import { BASE_URL } from "../constants";
 
@@ -9,7 +9,7 @@ const axiosInstance = axios.create({
     "Content-Type": "application/json",
   },
   timeout: 5000,
-  withCredentials: true, // ✅ important for cookie-based sessions
+  withCredentials: true, // ✅ optional if cookie-based
 });
 
 class APIClient<T> {
@@ -45,6 +45,25 @@ class APIClient<T> {
   put = async (data: T, params?: any, config?: AxiosRequestConfig) => {
     const url = params ? `${this.endpoint}/${params}` : this.endpoint;
     const response = await axiosInstance.put<T>(url, data, config);
+    return response.data;
+  };
+
+  // ✅ New: file upload method
+  upload = async (files: File[], config?: AxiosRequestConfig) => {
+    const formData = new FormData();
+    files.forEach((file) => formData.append("files", file));
+
+    const response = await axiosInstance.post<T>(
+      this.endpoint,
+      formData,
+      {
+        ...config,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
     return response.data;
   };
 }
