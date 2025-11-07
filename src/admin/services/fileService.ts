@@ -23,11 +23,11 @@ export const ChangeAccessTypeEndpoint = (fileShareId: string, accessType: "Publi
   return client.put({ accessType } as any);
 };
 
-export const ChangeDisplayNameEndpoint = (fileShareId: string, displayName: string) => {
-  const client = new APIClient<{ message: string }>(`/files/display-name/${fileShareId}`);
-  return client.put({ displayName } as any);
+export const ChangeDisplayNameEndpoint = (fileShareId: string, displayName: string, category?: string ) => {
+  const client = new APIClient<{ message: string }>(`/files/edit/${fileShareId}`);
+  return client.put({ displayName, category } as any);
 };
 export const viewFile = (fileShareId: string, ) => {
   const client = new APIClient<{ message: string }>(`/files/shared-file/${fileShareId}`);
   return client.get();
-};
+}

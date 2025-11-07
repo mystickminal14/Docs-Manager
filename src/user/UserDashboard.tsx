@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import { useState, useEffect } from "react";
 import { FaFileAlt, FaDownload, FaClock, FaChevronLeft, FaChevronRight, FaExclamationTriangle, FaExternalLinkAlt } from "react-icons/fa";
+=======
+import { useState } from "react";
+import { FaFileAlt, FaDownload, FaClock, FaSignOutAlt } from "react-icons/fa";
+>>>>>>> origin/chari
 import { useGetFiles } from "../admin/hooks/useAllFiles";
+import { useLogout } from "../admin/hooks/useLogout"; // assuming you have this hook
 import type { FileModel, PaginationParams } from "../admin/type/User";
 import { useParams, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../constants";
@@ -27,6 +33,7 @@ const UserDashboard = () => {
   });
 
   const { data, isLoading, isError } = useGetFiles(pagination);
+  const { mutate: logout } = useLogout(); // logout function
   const files: FileModel[] = data?.data || [];
   const totalPages = data?.info?.lastPage || 1;
 
