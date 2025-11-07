@@ -1,23 +1,30 @@
-import React, { useState, useEffect } from "react";
-import { FaFileAlt, FaDownload, FaTrashAlt, FaClock } from "react-icons/fa";
+import { useState } from "react";
+import { FaFileAlt, FaDownload, FaClock } from "react-icons/fa";
+import { useGetFiles } from "../admin/hooks/useAllFiles";
+import type { FileModel, PaginationParams } from "../admin/type/User";
 
-const dummyFiles = [
-  { id: 1, name: "ProjectReport.pdf", type: "PDF", size: "2.3 MB", uploadedAt: "2025-11-05", category: "A", url: "#" },
-  { id: 2, name: "DesignMockup.png", type: "Image", size: "1.1 MB", uploadedAt: "2025-11-03", category: "B", url: "#" },
-  { id: 3, name: "CodeSnippet.js", type: "JavaScript", size: "600 KB", uploadedAt: "2025-11-01", category: "A", url: "#" },
-  { id: 4, name: "Presentation.pptx", type: "PPT", size: "3.4 MB", uploadedAt: "2025-10-28", category: "C", url: "#" },
-];
+type Category = "CategoryA" | "CategoryB" | "CategoryC" | "CategoryD" | "CategoryE";
 
-const categories = ["A", "B", "C", "D", "E"];
+const categories: Category[] = ["CategoryA", "CategoryB", "CategoryC", "CategoryD", "CategoryE"];
 
 const UserDashboard = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string>("A");
-  const [files, setFiles] = useState(dummyFiles.filter(f => f.category === "A"));
+  const [selectedCategory, setSelectedCategory] = useState<Category>("CategoryA");
+  const [pagination, setPagination] = useState<PaginationParams>({
+    page: 1,
+    pageSize: 10,
+    category: selectedCategory,
+  });
 
-  useEffect(() => {
-    const filtered = dummyFiles.filter(f => f.category === selectedCategory);
-    setFiles(filtered);
-  }, [selectedCategory]);
+  const { data, isLoading, isError } = useGetFiles(pagination);
+  const files: FileModel[] = data?.data || [];
+
+  const handleCategoryChange = (category: Category) => {
+    setSelectedCategory(category);
+    setPagination({ ...pagination, category, page: 1 });
+  };
+
+  if (isLoading) return <div className="p-6 text-center">Loading files...</div>;
+  if (isError) return <div className="p-6 text-center text-red-500">Failed to load files.</div>;
 
   return (
     <div className="p-6 min-h-screen bg-gray-50">
@@ -32,9 +39,9 @@ const UserDashboard = () => {
               ? "bg-blue-600 text-white"
               : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
-            onClick={() => setSelectedCategory(cat)}
+            onClick={() => handleCategoryChange(cat)}
           >
-            Category {cat}
+            {cat.replace("Category", "Category ")}
           </button>
         ))}
       </div>
@@ -49,24 +56,25 @@ const UserDashboard = () => {
                   <FaFileAlt size={22} />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-lg text-gray-800 truncate">{file.name}</h2>
-                  <p className="text-sm text-gray-500">{file.type}</p>
+                  <h2 className="font-semibold text-lg text-gray-800 truncate">{file.displayName || file.name}</h2>
+                  <p className="text-sm text-gray-500">{file.category.replace("Category", "Category ")}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 text-gray-600 text-sm mt-2">
                 <FaClock size={14} />
-                <span>Uploaded on {file.uploadedAt}</span>
+                <span>Uploaded on {new Date(file.uploadedAt || file.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
 
             <div className="flex justify-between items-center mt-5 pt-4 border-t border-gray-200">
-              <span className="text-sm text-gray-500">{file.size}</span>
+              <span className="text-sm text-gray-500">{file.fileName || "-"}</span>
               <div className="flex gap-3">
-                <button className="text-blue-600 hover:text-blue-800 transition" title="Download" onClick={() => window.open(file.url, "_blank")}>
+                <button
+                  className="text-blue-600 hover:text-blue-800 transition"
+                  title="Download"
+                  onClick={() => window.open(file.filePath || "#", "_blank")}
+                >
                   <FaDownload size={16} />
-                </button>
-                <button className="text-red-500 hover:text-red-700 transition" title="Delete" onClick={() => setFiles(files.filter(f => f.id !== file.id))}>
-                  <FaTrashAlt size={16} />
                 </button>
               </div>
             </div>
