@@ -15,12 +15,7 @@ const router = createBrowserRouter([
   {
     path: "*",
     element: <NotFoundPage />,
-  },
-  {
-    path: "/app",
-    element: <AppLayout />,
-    children: [
-      {
+  },  {
         path: "dashboard",
         element: (
           <RoleProtectedRoute allowedRoles={[ "User"]}>
@@ -28,6 +23,11 @@ const router = createBrowserRouter([
           </RoleProtectedRoute>
         ),
       },
+  {
+    path: "/app",
+    element: <AppLayout />,
+    children: [
+    
       {
         path: "admin",
         element: (

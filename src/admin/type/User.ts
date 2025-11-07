@@ -12,12 +12,17 @@ export interface ChangePassword {
 }
 
 export interface Info {
-    total: number;
-    lastPage: number;
-    prev:number | null;
-      category?: "CategoryA" | "CategoryB" | "CategoryC" | "CategoryD" | "CategoryE";
+  total: number;
+  lastPage: number;
+  prev: number | null;
+  category?:
+    | "CategoryA"
+    | "CategoryB"
+    | "CategoryC"
+    | "CategoryD"
+    | "CategoryE";
 
-    next: number | null;
+  next: number | null;
 }
 
 export interface PaginationResponse<T> {
@@ -44,9 +49,13 @@ export interface PaginationParams {
   pageSize: number;
   seed?: string;
   status?: "active" | "inactive";
-
 }
-type Category = "CategoryA" | "CategoryB" | "CategoryC" | "CategoryD" | "CategoryE";
+type Category =
+  | "CategoryA"
+  | "CategoryB"
+  | "CategoryC"
+  | "CategoryD"
+  | "CategoryE";
 
 export interface FileModel {
   id: number;

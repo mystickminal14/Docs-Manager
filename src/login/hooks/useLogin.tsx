@@ -19,7 +19,7 @@ export const useLogin = () => {
 
         const role = data.role.toLowerCase();
         if (role === "admin") navigate("/app/manage-files");
-        else if (role === "user") navigate("/app/dashboard");
+        else if (role === "user") navigate("/dashboard");
         else showToast("Unexpected role received from server!", "error");
       } else {
         showToast("Unexpected response from server!", "error");
