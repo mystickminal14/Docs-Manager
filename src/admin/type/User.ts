@@ -48,6 +48,7 @@ export interface PaginationParams {
   page: number;
   pageSize: number;
   seed?: string;
+   category?: "CategoryA" | "CategoryB" | "CategoryC" | "CategoryD" | "CategoryE";
   status?: "active" | "inactive";
 }
 type Category =

@@ -29,8 +29,8 @@ import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
 
   const { data: fileData, isLoading, isError, refetch } = useGetFiles(
     useMemo(() => ({
-      page,
-      pageSize,
+      page:page,
+      pageSize:pageSize,
       seed: debouncedSearch.trim() || undefined,
       accessType: filter !== "all" ? filter : undefined,
       category: categoryFilter !== "all" ? categoryFilter : undefined,

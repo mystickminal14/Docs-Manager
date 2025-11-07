@@ -9,14 +9,14 @@ import ManageFiles from "../admin/components/ManageFiles";
 
 const router = createBrowserRouter([
   {
-    path: "/:category",
+    path: "/:category?",
     element: <LoginPage />,
   },
   {
     path: "*",
     element: <NotFoundPage />,
   },  {
-        path: "dashboard",
+        path: "/dashboard/:category?",
         element: (
           <RoleProtectedRoute allowedRoles={[ "User"]}>
             <UserDashboard />

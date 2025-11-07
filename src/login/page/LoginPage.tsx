@@ -5,6 +5,7 @@ import { useLogin } from "../hooks/useLogin";
 import type { LoginData } from "../types/auth";
 import logo from "../../assets/logo.png";
 import { useParams } from "react-router-dom";
+
 const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState<LoginData>({
     username: "",
@@ -12,9 +13,10 @@ const LoginPage: React.FC = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
-  const loginMutation = useLogin();
-   const { category } = useParams();
-   console.log(category)
+  const { category } = useParams<{ category?: string }>(); 
+
+  const loginMutation = useLogin(category); // ✅ pass category
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -30,20 +32,19 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="w-full font-poppins min-h-screen flex items-center justify-center bg-gray-100 transition-colors duration-500">
-      <div className="w-full max-w-md bg-white  rounded-2xl shadow-xl p-8 sm:p-10 flex flex-col items-center">
-        <img src={logo} alt="Logo" className="w-48  mb-4 object-fit-cover" />
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800   tracking-wide">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 sm:p-10 flex flex-col items-center">
+        <img src={logo} alt="Logo" className="w-48 mb-4 object-fit-cover" />
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 tracking-wide">
           Login
         </h2>
         <form onSubmit={handleSubmit} className="w-full space-y-5">
-
           <input
             type="text"
             name="username"
             value={formData.username}
             onChange={handleChange}
-            placeholder="username "
-            className="w-full p-3 border-b-2 border-gray-300  bg-transparent text-gray-800  focus:border-blue-500 outline-none"
+            placeholder="Username"
+            className="w-full p-3 border-b-2 border-gray-300 bg-transparent text-gray-800 focus:border-blue-500 outline-none"
             required
           />
 
@@ -54,7 +55,7 @@ const LoginPage: React.FC = () => {
               onChange={handleChange}
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              className="w-full p-3 border-b-2 border-gray-300  bg-transparent text-gray-800  focus:border-blue-500 outline-none pr-10"
+              className="w-full p-3 border-b-2 border-gray-300 bg-transparent text-gray-800 focus:border-blue-500 outline-none pr-10"
               required
             />
             <span
@@ -74,8 +75,9 @@ const LoginPage: React.FC = () => {
           </button>
         </form>
 
-        <p className="mt-6 text-sm text-gray-400  text-center">
-          Designed and Developed by <span className="font-semibold text-blue-500">Yaksha Soft</span>
+        <p className="mt-6 text-sm text-gray-400 text-center">
+          Designed and Developed by{" "}
+          <span className="font-semibold text-blue-500">Yaksha Soft</span>
         </p>
       </div>
     </div>
