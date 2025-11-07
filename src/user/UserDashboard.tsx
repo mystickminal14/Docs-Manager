@@ -3,6 +3,7 @@ import { FaFileAlt, FaDownload, FaClock, FaChevronLeft, FaChevronRight, FaExclam
 import { useGetFiles } from "../admin/hooks/useAllFiles";
 import type { FileModel, PaginationParams } from "../admin/type/User";
 import { useParams, useNavigate } from "react-router-dom";
+import { BASE_URL } from "../constants";
 
 type Category = "CategoryA" | "CategoryB" | "CategoryC" | "CategoryD" | "CategoryE";
 
@@ -49,7 +50,7 @@ const UserDashboard = () => {
 
   const handleDownloadFile = (fileShareId: string, fileName: string) => {
     // Force download using the same endpoint
-    const downloadUrl = `/api/files/shared-file/${fileShareId}`;
+    const downloadUrl = `${BASE_URL}/api/files/shared-file/${fileShareId}`;
     
     const link = document.createElement('a');
     link.href = downloadUrl;
