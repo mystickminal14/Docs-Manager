@@ -12,10 +12,12 @@ export interface ChangePassword {
 }
 
 export interface Info {
-  total: number;
-  lastPage: number;
-  prev: number | null;
-  next: number | null;
+    total: number;
+    lastPage: number;
+    prev:number | null;
+      category?: "CategoryA" | "CategoryB" | "CategoryC" | "CategoryD" | "CategoryE";
+
+    next: number | null;
 }
 
 export interface PaginationResponse<T> {
@@ -42,4 +44,14 @@ export interface PaginationParams {
   pageSize: number;
   seed?: string;
   status?: "active" | "inactive";
+
+}
+type Category = "CategoryA" | "CategoryB" | "CategoryC" | "CategoryD" | "CategoryE";
+
+export interface FileModel {
+  id: number;
+  name: string;
+  category: Category;
+  uploadedAt: string;
+  displayName?: string;
 }
