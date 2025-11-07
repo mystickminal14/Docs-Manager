@@ -272,7 +272,7 @@ import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
               </tbody>
             </table>
 
-            {/* Pagination */}
+          
             <div className="flex justify-between items-center mt-6">
               <button
                 onClick={handlePreviousPage}
