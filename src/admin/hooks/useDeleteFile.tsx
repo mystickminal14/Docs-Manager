@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AppContext } from "../../context/ContextApp";
 import { DeleteFileEndpoint } from "../services/fileService";
-import { FILE_CACHE_KEY } from "../../constants"; // optional: if you cache file list
+import { FILE_CACHE_KEY } from "../../constants"; 
 
 export const useDeleteFile = () => {
   const appContext = useContext(AppContext);

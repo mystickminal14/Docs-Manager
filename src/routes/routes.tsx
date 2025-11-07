@@ -9,7 +9,7 @@ import ManageFiles from "../admin/components/ManageFiles";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/:category",
     element: <LoginPage />,
   },
   {

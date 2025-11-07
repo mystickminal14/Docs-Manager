@@ -4,6 +4,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useLogin } from "../hooks/useLogin";
 import type { LoginData } from "../types/auth";
 import logo from "../../assets/logo.png";
+import { useParams } from "react-router-dom";
 const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState<LoginData>({
     username: "",
@@ -12,7 +13,8 @@ const LoginPage: React.FC = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const loginMutation = useLogin();
-
+   const { category } = useParams();
+   console.log(category)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
