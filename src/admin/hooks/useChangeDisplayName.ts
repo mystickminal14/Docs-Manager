@@ -7,6 +7,7 @@ import { FILE_CACHE_KEY } from "../../constants";
 interface ChangeDisplayNamePayload {
   fileShareId: string;
   displayName: string;
+  category?: string;
 }
 
 export const useChangeDisplayName = () => {
@@ -19,8 +20,8 @@ export const useChangeDisplayName = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ fileShareId, displayName }: ChangeDisplayNamePayload) => {
-      return await ChangeDisplayNameEndpoint(fileShareId, displayName);
+    mutationFn: async ({ fileShareId, displayName, category }: ChangeDisplayNamePayload) => {
+      return await ChangeDisplayNameEndpoint(fileShareId, displayName, category);
     },
 
     onSuccess: () => {
@@ -48,7 +49,7 @@ export const useChangeDisplayName = () => {
         }
       }
 
-      const errorMsg = data?.message || error.message || "Failed to update display name!";
+      const errorMsg = data?.message || error.message || "Failed to update files";
       showToast(errorMsg, "error");
     },
   });

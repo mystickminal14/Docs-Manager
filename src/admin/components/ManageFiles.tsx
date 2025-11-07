@@ -1,24 +1,32 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { FaPlus, FaSearch, FaFile, FaTrash, FaGlobe, FaLock, FaEdit } from "react-icons/fa";
+import {
+  FaPlus,
+  FaSearch,
+  FaFile,
+  FaTrash,
+  FaGlobe,
+  FaLock,
+  FaEdit,
+} from "react-icons/fa";
 import { useDeleteFile } from "../hooks/useDeleteFile";
 import { useChangeAccessType } from "../hooks/useChangeAccessType";
 import { useGetFiles } from "../hooks/useAllFiles";
 import { AddFileDrawer } from "./AddFileDrawer";
-import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
+import { EditFileDrawer } from "./EditFileDrawer";
+import type { FileModel } from "../type/User";
 
- const ManageFiles: React.FC = () => {
-  const [isDrawerOpen, setDrawerOpen] = useState(false);
-  const [isDialogOpen, setDialogOpen] = useState(false);
-  const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
-  const [selectedFileName, setSelectedFileName] = useState("");
-  
+const ManageFiles: React.FC = () => {
+  const [isAddDrawerOpen, setAddDrawerOpen] = useState(false);
+  const [isEditDrawerOpen, setEditDrawerOpen] = useState(false);
+  const [editFile, setEditFile] = useState<FileModel | null>(null);
+
   const [confirmAction, setConfirmAction] = useState<{
-    type: "delete" | "makePublic" | "makePrivate" | null;
+    type: "delete" | "makePublic" | "makeClosed" | null;
     fileId: string | null;
     fileName?: string;
   }>({ type: null, fileId: null });
 
-  const [filter, setFilter] = useState<"all" | "Public" | "Private">("all");
+  const [filter, setFilter] = useState<"all" | "Public" | "Closed">("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -28,13 +36,16 @@ import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
   const categories = ["CategoryA", "CategoryB", "CategoryC", "CategoryD", "CategoryE"];
 
   const { data: fileData, isLoading, isError, refetch } = useGetFiles(
-    useMemo(() => ({
-      page,
-      pageSize,
-      seed: debouncedSearch.trim() || undefined,
-      accessType: filter !== "all" ? filter : undefined,
-      category: categoryFilter !== "all" ? categoryFilter : undefined,
-    }), [page, debouncedSearch, filter, categoryFilter])
+    useMemo(
+      () => ({
+        page,
+        pageSize,
+        seed: debouncedSearch.trim() || undefined,
+        accessType: filter !== "all" ? filter : undefined,
+        category: categoryFilter !== "all" ? categoryFilter : undefined,
+      }),
+      [page, debouncedSearch, filter, categoryFilter]
+    )
   );
 
   const deleteFile = useDeleteFile();
@@ -47,40 +58,34 @@ import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
   }, [search]);
 
   const handleDeleteFile = (fileId: string) => {
-    deleteFile.mutate(
-      fileId,
-      { onSuccess: () => refetch() }
-    );
+    deleteFile.mutate(fileId, {
+      onSuccess: () => {
+        refetch();
+      },
+    });
+
   };
 
-  const handleChangeAccessType = (fileId: string, accessType: "Public" | "Private") => {
-    changeAccessType.mutate(
-      { fileShareId: fileId, accessType },
-      { onSuccess: () => refetch() }
-    );
+  const handleChangeAccessType = (fileId: string, accessType: "Public" | "Closed") => {
+    changeAccessType.mutate({ fileShareId: fileId, accessType }, { onSuccess: refetch });
   };
 
-  const handleChangeDisplayName = (fileId: string, currentName: string) => {
-    setSelectedFileId(fileId);
-    setSelectedFileName(currentName);
-    setDialogOpen(true);
+  const handleEditFile = (file: FileModel) => {
+    setEditFile(file);
+    setEditDrawerOpen(true);
   };
 
   const handleNextPage = () => {
-    if (!isLastPage) setPage(prev => prev + 1);
+    if (!isLastPage) setPage((prev) => prev + 1);
   };
+  const handlePreviousPage = () => setPage((prev) => Math.max(prev - 1, 1));
 
-  const handlePreviousPage = () => setPage(prev => Math.max(prev - 1, 1));
-
-  const isLastPage = fileData?.info?.next ? false : true;
+  const isLastPage = !fileData?.info?.next;
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-50">
-        <div
-          className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"
-          aria-label="Loading files data..."
-        />
+        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -91,7 +96,7 @@ import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold text-gray-800">File Management</h2>
         <button
-          onClick={() => setDrawerOpen(true)}
+          onClick={() => setAddDrawerOpen(true)}
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all"
         >
           <FaPlus /> Add Files
@@ -127,7 +132,7 @@ import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
           >
             <option value="all">All Access Types</option>
             <option value="Public">Public</option>
-            <option value="Private">Private</option>
+            <option value="Closed">Closed</option>
           </select>
 
           <select
@@ -139,8 +144,10 @@ import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
             className="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full sm:w-auto"
           >
             <option value="all">All Categories</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
             ))}
           </select>
         </div>
@@ -168,11 +175,17 @@ import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
               </thead>
               <tbody>
                 {fileData.data.map((file, index) => (
-                  <tr key={file.fileShareId} className="border-t hover:bg-gray-50 transition-all">
+                  <tr
+                    key={file.fileShareId}
+                    className="border-t hover:bg-gray-50 transition-all"
+                  >
                     <td className="px-6 py-4">{(page - 1) * pageSize + index + 1}</td>
                     <td className="px-6 py-4 flex items-center gap-2">
                       <FaFile className="text-indigo-500 flex-shrink-0" />
-                      <span className="truncate max-w-[200px]" title={file.filePath}>
+                      <span
+                        className="truncate max-w-[200px]"
+                        title={file.filePath}
+                      >
                         {file.filePath}
                       </span>
                     </td>
@@ -183,11 +196,12 @@ import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
                     </td>
                     <td className="px-6 py-4">{file.category}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        file.accessType === "Public"
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${file.accessType === "Public"
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-700"
-                      }`}>
+                          }`}
+                      >
                         {file.accessType}
                       </span>
                     </td>
@@ -195,140 +209,139 @@ import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
                       {new Date(file.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-center space-x-2">
-                      {/* Make Public Button */}
-                      {file.accessType !== "Public" && (
-                        <div className="relative inline-block group">
-                          <button
-                            onClick={() => setConfirmAction({ 
-                              type: "makePublic", 
-                              fileId: file.fileShareId,
-                              fileName: file.fileName
-                            })}
-                            className="flex items-center gap-1 px-3 py-1 rounded-lg bg-green-100 hover:bg-green-200 text-green-700 text-sm font-medium transition-all"
-                          >
-                            <FaGlobe />
-                            Make Public
-                          </button>
-                          <span className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                            Make file public
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Make Private Button */}
-                      {file.accessType === "Public" && (
-                        <div className="relative inline-block group">
-                          <button
-                            onClick={() => setConfirmAction({ 
-                              type: "makePrivate", 
-                              fileId: file.fileShareId,
-                              fileName: file.fileName
-                            })}
-                            className="flex items-center gap-1 px-3 py-1 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium transition-all"
-                          >
-                            <FaLock />
-                            Make Private
-                          </button>
-                          <span className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                            Make file private
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Change Display Name */}
-                      <div className="relative inline-block group">
+                      {/* Access Toggle */}
+                      {file.accessType !== "Public" ? (
                         <button
-                          onClick={() => handleChangeDisplayName(file.fileShareId, file.displayName || file.fileName)}
-                          className="flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-sm font-medium transition-all"
+                          onClick={() =>
+                            setConfirmAction({
+                              type: "makePublic",
+                              fileId: file.fileShareId,
+                              fileName: file.fileName,
+                            })
+                          }
+                          className="px-3 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg text-sm font-medium transition"
                         >
-                          <FaEdit />
-                          Rename
+                          <FaGlobe /> Make Public
                         </button>
-                        <span className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                          Change display name
-                        </span>
-                      </div>
-
-                      {/* Delete Button */}
-                      <div className="relative inline-block group">
+                      ) : (
                         <button
-                          onClick={() => setConfirmAction({ 
-                            type: "delete", 
+                          onClick={() =>
+                            setConfirmAction({
+                              type: "makeClosed",
+                              fileId: file.fileShareId,
+                              fileName: file.fileName,
+                            })
+                          }
+                          className="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition"
+                        >
+                          <FaLock /> Make Closed
+                        </button>
+                      )}
+
+                      {/* Edit */}
+                      <button
+                        onClick={() => handleEditFile(file)}
+                        className="px-3 py-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg text-sm font-medium transition"
+                      >
+                        <FaEdit /> Edit
+                      </button>
+
+                      {/* Delete */}
+                      <button
+                        onClick={() =>
+                          setConfirmAction({
+                            type: "delete",
                             fileId: file.fileShareId,
-                            fileName: file.fileName
-                          })}
-                          className="flex items-center gap-1 px-3 py-1 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium transition-all"
-                        >
-                          <FaTrash />
-                          Delete
-                        </button>
-                        <span className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                          Delete file
-                        </span>
-                      </div>
+                            fileName: file.fileName,
+                          })
+                        }
+                        className="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition"
+                      >
+                        <FaTrash /> Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
 
-          
+            {/* Pagination */}
             <div className="flex justify-between items-center mt-6">
               <button
                 onClick={handlePreviousPage}
                 disabled={page === 1}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${page === 1 ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700 text-white"}`}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${page === 1
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                  }`}
               >
                 Previous
               </button>
-
               <span className="text-sm text-gray-600">
                 Page {page} of {fileData.info.lastPage || 1}
               </span>
-
               <button
                 onClick={handleNextPage}
                 disabled={isLastPage}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${isLastPage ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700 text-white"}`}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${isLastPage
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                  }`}
               >
                 Next
               </button>
             </div>
           </>
         ) : (
-          <p className="text-center py-10 text-gray-500 italic">No files found.</p>
+          <p className="text-center py-10 text-gray-500 italic">
+            No files found.
+          </p>
         )}
       </div>
 
       {/* Add File Drawer */}
       <AddFileDrawer
-        open={isDrawerOpen} 
-        onClose={() => setDrawerOpen(false)}
+        open={isAddDrawerOpen}
+        onClose={() => setAddDrawerOpen(false)}
         onSuccess={refetch}
       />
 
-      {/* Change Display Name Dialog */}
-      <ChangeDisplayNameDialog
-        open={isDialogOpen}
-        onClose={() => setDialogOpen(false)}
-        fileId={selectedFileId}
-        currentName={selectedFileName}
+      {/* Edit File Drawer */}
+      <EditFileDrawer
+        open={isEditDrawerOpen}
+        onClose={() => {
+          setEditDrawerOpen(false);
+          setEditFile(null);
+        }}
         onSuccess={refetch}
+        isEdit={!!editFile}
+        initialData={
+          editFile
+            ? {
+              fileShareId: editFile.fileShareId,
+              displayName: editFile.fileName || "",
+              category: editFile.category || "CategoryA",
+            }
+            : undefined
+        }
       />
 
-      {/* Confirm Dialog for Actions */}
+      {/* Confirm Dialog */}
       {confirmAction.type && confirmAction.fileId && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-80">
             <h3 className="text-lg font-semibold mb-4">
               {confirmAction.type === "delete" && "Delete File"}
               {confirmAction.type === "makePublic" && "Make File Public"}
-              {confirmAction.type === "makePrivate" && "Make File Private"}
+              {confirmAction.type === "makeClosed" && "Make File Closed"}
             </h3>
             <p className="mb-6">
-              {confirmAction.type === "delete" && `Are you sure you want to delete "${confirmAction.fileName}"?`}
-              {confirmAction.type === "makePublic" && `Are you sure you want to make "${confirmAction.fileName}" public?`}
-              {confirmAction.type === "makePrivate" && `Are you sure you want to make "${confirmAction.fileName}" private?`}
+              {confirmAction.type === "delete" &&
+                `Are you sure you want to delete "${confirmAction.fileName}"?`}
+              {confirmAction.type === "makePublic" &&
+                `Are you sure you want to make "${confirmAction.fileName}" public?`}
+              {confirmAction.type === "makeClosed" &&
+                `Are you sure you want to make "${confirmAction.fileName}" closed?`}
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -338,21 +351,19 @@ import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
                 Cancel
               </button>
               <button
-                className={`px-4 py-2 rounded-lg font-medium text-white ${
-                  confirmAction.type === "delete"
-                    ? "bg-red-500 hover:bg-red-600"
-                    : confirmAction.type === "makePublic"
+                className={`px-4 py-2 rounded-lg font-medium text-white ${confirmAction.type === "delete"
+                  ? "bg-red-500 hover:bg-red-600"
+                  : confirmAction.type === "makePublic"
                     ? "bg-green-500 hover:bg-green-600"
                     : "bg-blue-500 hover:bg-blue-600"
-                }`}
+                  }`}
                 onClick={() => {
-                  if (confirmAction.type === "delete") {
+                  if (confirmAction.type === "delete")
                     handleDeleteFile(confirmAction.fileId!);
-                  } else if (confirmAction.type === "makePublic") {
+                  else if (confirmAction.type === "makePublic")
                     handleChangeAccessType(confirmAction.fileId!, "Public");
-                  } else if (confirmAction.type === "makePrivate") {
-                    handleChangeAccessType(confirmAction.fileId!, "Private");
-                  }
+                  else if (confirmAction.type === "makeClosed")
+                    handleChangeAccessType(confirmAction.fileId!, "Closed");
                   setConfirmAction({ type: null, fileId: null });
                 }}
               >
@@ -365,4 +376,5 @@ import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
     </div>
   );
 };
+
 export default ManageFiles;

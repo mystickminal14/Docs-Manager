@@ -34,7 +34,7 @@ export interface FileModel {
   fileShareId: string;
   fileName: string;
   filePath: string;
-  accessType: "Public" | "Private";
+  accessType: "Public" | "Closed";
   sharedBy: string;
   createdAt: string;
   updatedAt: string;
