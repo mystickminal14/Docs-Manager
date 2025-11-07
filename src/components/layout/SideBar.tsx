@@ -1,8 +1,10 @@
-import { FaChevronDown, FaFolderOpen, FaUsers } from "react-icons/fa";
+import { FaChevronDown, FaFolderOpen, FaUsers, FaSignOutAlt } from "react-icons/fa";
 import { useEffect, useState, useContext } from "react";
 import appLogo from "../../assets/logo.png";
 import { AppContext } from "../../context/ContextApp";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useLogout } from "../../admin/hooks/useLogout"; // 👈 import useLogout
+
 interface MenuItem {
   id: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -14,7 +16,6 @@ interface MenuItem {
 interface SideBarProps {
   collapsed: boolean;
   onCollapse?: () => void;
-  
 }
 
 const menuItems: MenuItem[] = [
@@ -34,15 +35,17 @@ function useIsMobile() {
   return isMobile;
 }
 
-const SideBar: React.FC<SideBarProps> = ({ collapsed, onCollapse, }) => {
+const SideBar: React.FC<SideBarProps> = ({ collapsed, onCollapse }) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const [activeMobileItem, setActiveMobileItem] = useState<MenuItem | null>(null);
   const isMobile = useIsMobile();
   const appContext = useContext(AppContext);
   if (!appContext) throw new Error("AppContext not found");
+
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const logoutMutation = useLogout(); // 👈 initialize logout hook
 
   const toggleSubmenu = (itemId: string) => {
     const newExpanded = new Set(expandedItems);
@@ -69,21 +72,16 @@ const SideBar: React.FC<SideBarProps> = ({ collapsed, onCollapse, }) => {
       navigate(`/app/${item.id}`);
     }
 
-    if (isMobile && !collapsed) {
-      onCollapse?.();
-    }
+    if (isMobile && !collapsed) onCollapse?.();
   };
 
-  const isMenuItemActive = (item: MenuItem): boolean => {
-    return item.subMenus
+  const isMenuItemActive = (item: MenuItem): boolean =>
+    item.subMenus
       ? pathname.startsWith(`/app/${item.id}`)
       : pathname === `/app/${item.id}`;
-  };
 
   const isSubMenuActive = (item: MenuItem, subMenuId: string) =>
     pathname === `/app/${item.id}/${subMenuId}`;
-
-
 
   return (
     <div
@@ -93,9 +91,17 @@ const SideBar: React.FC<SideBarProps> = ({ collapsed, onCollapse, }) => {
       {/* Logo */}
       <div className="p-3 border-b border-slate-200/50 flex justify-center">
         {collapsed ? (
-          <img src={appLogo} alt="Collapsed Logo" className="w-12 h-12 object-cover rounded-xl shadow-lg" />
+          <img
+            src={appLogo}
+            alt="Collapsed Logo"
+            className="w-12 h-12 object-cover rounded-xl shadow-lg"
+          />
         ) : (
-          <img src={appLogo} alt="Expanded Logo" className="w-30 h-auto object-contain rounded-xl" />
+          <img
+            src={appLogo}
+            alt="Expanded Logo"
+            className="w-30 h-auto object-contain rounded-xl"
+          />
         )}
       </div>
 
@@ -108,26 +114,23 @@ const SideBar: React.FC<SideBarProps> = ({ collapsed, onCollapse, }) => {
           return (
             <div key={item.id}>
               <button
-                className={`w-full flex cursor-pointer items-center justify-between p-3 rounded-xl transition-all duration-200 ${
-                  isActive
-                    ? "bg-linear-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25"
-                    : "text-slate-700 hover:bg-slate-100"
-                }`}
+                className={`w-full flex cursor-pointer items-center justify-between p-3 rounded-xl transition-all duration-200 ${isActive
+                  ? "bg-linear-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25"
+                  : "text-slate-700 hover:bg-slate-100"
+                  }`}
                 onClick={() => handleMenuClick(item)}
               >
                 <div className="flex items-center space-x-3">
                   <item.icon
-                    className={`w-6 h-6 ${
-                      isActive ? "text-white" : "text-slate-700"
-                    }`}
+                    className={`w-6 h-6 ${isActive ? "text-white" : "text-slate-700"
+                      }`}
                   />
                   {!collapsed && <span className="font-medium">{item.label}</span>}
                 </div>
                 {!collapsed && item.subMenus && (
                   <FaChevronDown
-                    className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180" : ""} ${
-                      isActive ? "text-white" : "text-slate-700"
-                    }`}
+                    className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180" : ""
+                      } ${isActive ? "text-white" : "text-slate-700"}`}
                   />
                 )}
               </button>
@@ -137,11 +140,10 @@ const SideBar: React.FC<SideBarProps> = ({ collapsed, onCollapse, }) => {
                   {item.subMenus.map((menu) => (
                     <button
                       key={menu.id}
-                      className={`w-full text-left p-2 text-sm rounded-lg transition-all ${
-                        isSubMenuActive(item, menu.id)
-                          ? "text-blue-600 bg-blue-50 font-medium"
-                          : "text-slate-600 hover:text-slate-800 hover:bg-slate-100"
-                      }`}
+                      className={`w-full text-left p-2 text-sm rounded-lg transition-all ${isSubMenuActive(item, menu.id)
+                        ? "text-blue-600 bg-blue-50 font-medium"
+                        : "text-slate-600 hover:text-slate-800 hover:bg-slate-100"
+                        }`}
                       onClick={() => handleMenuClick(item, menu.id)}
                     >
                       {menu.label}
@@ -154,15 +156,30 @@ const SideBar: React.FC<SideBarProps> = ({ collapsed, onCollapse, }) => {
         })}
       </nav>
 
-     
-      {isMobile && activeMobileItem && (
-        <>
-          {submenuOpen && (
-            <div
-              onClick={() => setSubmenuOpen(false)}
-              className="fixed inset-0 bg-black/40 z-40"
-            />
+      {/* Logout Button */}
+      <div className="border-t border-slate-200 p-4">
+        <button
+          onClick={() => logoutMutation.mutate()}
+          disabled={logoutMutation.isPending}
+          className={`w-full flex items-center justify-center gap-3 py-2 rounded-xl transition-all font-medium ${logoutMutation.isPending
+            ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+            : "bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/30"
+            }`}
+        >
+          <FaSignOutAlt size={18} />
+          {!collapsed && (
+            <span>{logoutMutation.isPending ? "Logging out..." : "Logout"}</span>
           )}
+        </button>
+      </div>
+
+      {/* Mobile submenu overlay */}
+      {isMobile && activeMobileItem && submenuOpen && (
+        <>
+          <div
+            onClick={() => setSubmenuOpen(false)}
+            className="fixed inset-0 bg-black/40 z-40"
+          />
           <div
             className={`fixed inset-y-0 right-0 w-64 shadow-xl transform transition-transform duration-300 ease-in-out z-50
               bg-white text-slate-800
@@ -183,11 +200,10 @@ const SideBar: React.FC<SideBarProps> = ({ collapsed, onCollapse, }) => {
               {activeMobileItem.subMenus?.map((menu) => (
                 <button
                   key={menu.id}
-                  className={`block w-full text-left p-2 rounded-lg transition-all ${
-                    isSubMenuActive(activeMobileItem, menu.id)
-                      ? "text-blue-600 bg-blue-50 font-medium"
-                      : "text-slate-600 hover:text-slate-800 hover:bg-slate-100"
-                  }`}
+                  className={`block w-full text-left p-2 rounded-lg transition-all ${isSubMenuActive(activeMobileItem, menu.id)
+                    ? "text-blue-600 bg-blue-50 font-medium"
+                    : "text-slate-600 hover:text-slate-800 hover:bg-slate-100"
+                    }`}
                   onClick={() => {
                     handleMenuClick(activeMobileItem, menu.id);
                     setSubmenuOpen(false);
