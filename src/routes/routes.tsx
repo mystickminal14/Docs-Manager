@@ -5,6 +5,7 @@ import LoginPage from "../login/page/LoginPage";
 import UserDashboard from "../user/UserDashboard"; // example user page
 import { RoleProtectedRoute } from "./ProtectedRoute";
 import { AdminPage } from "../admin/AdminPage";
+import ManageFiles from "../admin/components/ManageFiles";
 
 const router = createBrowserRouter([
   {
@@ -22,7 +23,7 @@ const router = createBrowserRouter([
       {
         path: "dashboard",
         element: (
-          <RoleProtectedRoute allowedRoles={[ "user"]}>
+          <RoleProtectedRoute allowedRoles={[ "User"]}>
             <UserDashboard />
           </RoleProtectedRoute>
         ),
@@ -30,7 +31,7 @@ const router = createBrowserRouter([
       {
         path: "admin",
         element: (
-          <RoleProtectedRoute allowedRoles={["admin"]}>
+          <RoleProtectedRoute allowedRoles={["Admin"]}>
             <AdminPage />
           </RoleProtectedRoute>
         ),
@@ -38,8 +39,8 @@ const router = createBrowserRouter([
       {
         path: "manage-files",
         element: (
-          <RoleProtectedRoute allowedRoles={["admin"]}>
-            <AdminPage />
+          <RoleProtectedRoute allowedRoles={["Admin"]}>
+            <ManageFiles />
           </RoleProtectedRoute>
         ),
       },

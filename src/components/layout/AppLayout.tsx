@@ -29,7 +29,9 @@ const AppLayout: React.FC = () => {
         <div className="flex-1 flex flex-col overflow-hidden">
 
           <main className="flex-1 overflow-y-auto bg-transparent p-4">
-            {isOnline ? <Outlet /> : <OfflinePage />}
+            {/* {isOnline ? <Outlet /> : <OfflinePage />}
+             */}
+             <Outlet/>
           </main>
         </div>
       </div>

@@ -1,12 +1,43 @@
 export interface User {
-  id: number;
   fullName: string;
-  email: string;
+  userId?:string,
+  username: string;
   password: string;
-  role: "admin" | "user";
-  status: "active" | "inactive";
+  role?: "Admin" | "User";
+  status?: "Active" | "Inactive";
 }
-
+ 
 export interface ChangePassword{
     password:string
+}
+export interface Info {
+    total: number;
+    lastPage: number;
+    prev:number | null;
+    next: number | null;
+}
+
+export interface PaginationResponse<T> {
+    data: T[];
+    info: Info;
+}
+
+
+
+
+export interface PaginationParams {
+  page: number;
+  pageSize: number;
+  seed?: string;
+  status?: "active" | "inactive";
+
+}
+type Category = "CategoryA" | "CategoryB" | "CategoryC" | "CategoryD" | "CategoryE";
+
+export interface FileModel {
+  id: number;
+  name: string;
+  category: Category;
+  uploadedAt: string;
+  displayName?: string;
 }

@@ -3,5 +3,14 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "strict": true,
+    "allowJs": false,
+    "checkJs": false,
+    "verbatimModuleSyntax": false,
+    "erasableSyntaxOnly": false
+  }
 }

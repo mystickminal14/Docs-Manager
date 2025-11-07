@@ -8,12 +8,12 @@ const axiosInstance = axios.create({
     Accept: "application/json",
     "Content-Type": "application/json",
   },
-  timeout: 5000,
-  withCredentials: true, // ✅ optional if cookie-based
+  withCredentials: true, 
 });
 
 class APIClient<T> {
   endpoint: string;
+
 
   constructor(endpoint: string) {
     this.endpoint = endpoint;
@@ -49,23 +49,36 @@ class APIClient<T> {
   };
 
   // ✅ New: file upload method
-  upload = async (files: File[], config?: AxiosRequestConfig) => {
-    const formData = new FormData();
-    files.forEach((file) => formData.append("files", file));
+  // ✅ Updated upload method to include category & displayName
+upload = async (
+  files: File[],
+  category: string,
+  displayName?: string,
+  config?: AxiosRequestConfig
+) => {
+  const formData = new FormData();
 
-    const response = await axiosInstance.post<T>(
-      this.endpoint,
-      formData,
-      {
-        ...config,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+  // Append all files
+  files.forEach((file) => formData.append("sharedFiles", file));
 
-    return response.data;
-  };
+  // Append additional fields
+  formData.append("category", category);
+  if (displayName) formData.append("displayName", displayName);
+
+  const response = await axiosInstance.post<T>(
+    this.endpoint,
+    formData,
+    {
+      ...config,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return response.data;
+};
+
 }
 
 export default APIClient;

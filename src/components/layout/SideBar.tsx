@@ -18,8 +18,8 @@ interface SideBarProps {
 }
 
 const menuItems: MenuItem[] = [
-  { id: "dashboard", icon: FaFolderOpen, label: "Manage Files", badge: "New" },
-  { id: "users", icon: FaUsers, label: "Users", badge: "New" },
+  { id: "manage-files", icon: FaFolderOpen, label: "Manage Files", badge: "New" },
+  { id: "admin", icon: FaUsers, label: "Users", badge: "New" },
 ];
 
 function useIsMobile() {

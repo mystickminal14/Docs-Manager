@@ -1,24 +1,20 @@
 import React, { useState } from "react";
 import type { User } from "../type/User";
+import useAddUser from "../hooks/useCreateUser";
 
 interface AddUserDrawerProps {
   open: boolean;
   onClose: () => void;
-  onAdd: (user: Omit<User, "id">) => void;
 }
 
-export const AddUserDrawer: React.FC<AddUserDrawerProps> = ({
-  open,
-  onClose,
-  onAdd,
-}) => {
-  const [form, setForm] = useState<Omit<User, "id">>({
+export const AddUserDrawer: React.FC<AddUserDrawerProps> = ({ open, onClose }) => {
+  const [form, setForm] = useState({
     fullName: "",
     email: "",
     password: "",
-    role: "user",
-    status: "active",
   });
+
+  const { mutate: addUser, isPending } = useAddUser();
 
   if (!open) return null;
 
@@ -27,35 +23,47 @@ export const AddUserDrawer: React.FC<AddUserDrawerProps> = ({
       alert("Please fill all required fields!");
       return;
     }
-    onAdd(form);
-    setForm({ fullName: "", email: "", password: "", role: "user", status: "active" });
+
+    const newUser: User = {
+      fullName: form.fullName,
+      username: form.email,
+      password: form.password,
+    };
+
+    addUser(newUser, {
+      onSuccess: () => {
+        setForm({ fullName: "", email: "", password: "" });
+        onClose();
+      },
+    });
   };
 
   return (
     <>
-      {/* Backdrop - only show on larger screens */}
-      <div className="hidden sm:block fixed inset-0 z-40" onClick={onClose}></div>
-      
+      {/* Backdrop */}
+      <div className="hidden sm:block fixed inset-0 z-40 bg-black/30" onClick={onClose}></div>
+
       {/* Drawer */}
       <div className="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-white z-50 shadow-2xl transform transition-transform duration-300 ease-in-out">
         <div className="p-6 h-full overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl font-semibold">Add New User</h3>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
 
           <div className="flex flex-col gap-4">
+            {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name *
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
               <input
                 placeholder="Enter full name"
                 className="border border-gray-300 w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -64,10 +72,9 @@ export const AddUserDrawer: React.FC<AddUserDrawerProps> = ({
               />
             </div>
 
+            {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email *
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
               <input
                 placeholder="Enter email address"
                 type="email"
@@ -77,10 +84,9 @@ export const AddUserDrawer: React.FC<AddUserDrawerProps> = ({
               />
             </div>
 
+            {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password *
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
               <input
                 placeholder="Enter password"
                 type="password"
@@ -90,22 +96,7 @@ export const AddUserDrawer: React.FC<AddUserDrawerProps> = ({
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Role
-              </label>
-              <select
-                className="border border-gray-300 w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                value={form.role}
-                onChange={(e) =>
-                  setForm({ ...form, role: e.target.value as "admin" | "user" })
-                }
-              >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-
+            {/* Action Buttons */}
             <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
               <button
                 onClick={onClose}
@@ -115,9 +106,14 @@ export const AddUserDrawer: React.FC<AddUserDrawerProps> = ({
               </button>
               <button
                 onClick={handleSubmit}
-                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                disabled={isPending}
+                className={`px-6 py-2 rounded-lg font-medium text-white transition-colors ${
+                  isPending
+                    ? "bg-indigo-400 cursor-not-allowed"
+                    : "bg-indigo-600 hover:bg-indigo-700"
+                }`}
               >
-                Add User
+                {isPending ? "Adding..." : "Add User"}
               </button>
             </div>
           </div>

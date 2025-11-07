@@ -8,7 +8,6 @@ export const useAuth = () => {
   }
   return {
     user: context.user,
-    setUser: context.setUser,
     logout: context.logout,
   };
 };

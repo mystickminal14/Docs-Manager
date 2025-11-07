@@ -1,200 +1,231 @@
-
-
 import React, { useState } from "react";
-import { FaPlus, FaFileAlt, FaEdit, FaTrash } from "react-icons/fa";
+import { FaPlus, FaTrash, FaFileAlt, FaFile } from "react-icons/fa";
+import { useFileUpload } from "../hooks/useUploadFiles";
+
+type Category = "CategoryA" | "CategoryB" | "CategoryC" | "CategoryD" | "CategoryE";
 
 interface FileItem {
   id: number;
   name: string;
-  type: "A" | "B";
+  category: Category;
   uploadedAt: string;
+  displayName?: string;
 }
 
-type Category = "A" | "B";
-
 const ManageFiles: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<Category>("A");
+  const categories: Category[] = ["CategoryA", "CategoryB", "CategoryC", "CategoryD", "CategoryE"];
   const [files, setFiles] = useState<FileItem[]>([
-    { id: 1, name: "Report_Q1.pdf", type: "A", uploadedAt: "2025-11-05" },
-    { id: 2, name: "Invoice_102.pdf", type: "A", uploadedAt: "2025-11-04" },
-    { id: 3, name: "Design_v2.fig", type: "B", uploadedAt: "2025-11-03" },
+    { id: 1, name: "Report_Q1.pdf", category: "CategoryA", uploadedAt: "2025-11-05" },
+    { id: 2, name: "Invoice_102.pdf", category: "CategoryA", uploadedAt: "2025-11-04" },
+    { id: 3, name: "Design_v2.fig", category: "CategoryB", uploadedAt: "2025-11-03" },
   ]);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [fileType, setFileType] = useState<"A" | "B">("A");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const filteredFiles = files.filter((f) => f.type === activeTab);
+  const [filterCategory, setFilterCategory] = useState<Category | "All">("All");
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [category, setCategory] = useState<Category>("CategoryA");
+  const [displayName, setDisplayName] = useState("");
+  const [sharedFiles, setSharedFiles] = useState<File[]>([]);
+  const uploadMutation = useFileUpload();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) setSelectedFile(e.target.files[0]);
+    if (e.target.files) setSharedFiles(Array.from(e.target.files));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedFile) return;
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!sharedFiles.length) return;
 
-    const newFile: FileItem = {
-      id: Date.now(),
-      name: selectedFile.name,
-      type: fileType,
-      uploadedAt: new Date().toISOString().split("T")[0],
-    };
+  const newEntries: FileItem[] = sharedFiles.map((file) => ({
+    id: Date.now() + Math.random(),
+    name: file.name,
+    category,
+    uploadedAt: new Date().toISOString().split("T")[0],
+    displayName,
+  }));
 
-    setFiles((prev) => [...prev, newFile]);
+  await uploadMutation.mutateAsync({
+    files: sharedFiles,
+    category,
+    displayName: displayName || undefined,
+  });
+
+  setFiles((prev) => [...prev, ...newEntries]);
+  resetForm();
+};
+
+  const resetForm = () => {
     setIsDrawerOpen(false);
-    setSelectedFile(null);
-    (e.target as HTMLFormElement).reset();
+    setSharedFiles([]);
+    setDisplayName("");
+    setCategory("CategoryA");
   };
 
   const handleDelete = (id: number) => {
-    if (window.confirm("Are you sure you want to delete this file?")) {
+    if (window.confirm("Delete this file?")) {
       setFiles((prev) => prev.filter((f) => f.id !== id));
     }
   };
 
+  const filteredFiles =
+    filterCategory === "All" ? files : files.filter((f) => f.category === filterCategory);
+
   return (
     <>
-      {/* Container */}
-      <div className="w-full bg-gradient-to-r from-indigo-50 to-purple-50 rounded-3xl shadow-2xl p-8">
-
+      <div className="w-full p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
             <FaFileAlt className="text-indigo-600" /> Manage Files
           </h2>
 
           <button
             onClick={() => setIsDrawerOpen(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-lg transform hover:scale-105 transition"
-            title="Add File"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-md shadow transition"
           >
-            <FaPlus className="text-xl" />
+            <FaPlus />
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b-2 border-gray-300 mb-8 gap-4">
-          {(["A", "B"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`py-2 px-6 text-lg font-semibold rounded-t-lg transition-colors ${activeTab === tab
-                ? "text-indigo-600 border-b-4 border-indigo-600"
-                : "text-gray-500 hover:text-indigo-500"
-                }`}
-            >
-              Category {tab}
-            </button>
-          ))}
+        {/* Category Filter */}
+        <div className="mb-4 flex items-center gap-3">
+          <label className="text-gray-700 text-sm font-medium">Filter by Category:</label>
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value as Category | "All")}
+            className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="All">All</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
         </div>
 
-
-        {/* File Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredFiles.length === 0 ? (
-            <p className="col-span-full text-center text-gray-400 py-20">
-              No files in Category {activeTab}
-            </p>
-          ) : (
-            filteredFiles.map((file) => (
-              <div
-                key={file.id}
-                className="bg-white rounded-3xl p-6 shadow-md hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 relative"
-              >
-                <span className={`absolute top-4 right-4 text-xs font-semibold px-3 py-1 rounded-full text-white ${file.type === "A" ? "bg-indigo-600" : "bg-green-500"}`}>
-                  Type {file.type}
-                </span>
-
-                {/* File Name */}
-                <h3 className="font-semibold text-gray-800 text-lg truncate mb-2">
-                  {file.name}
-                </h3>
-
-                {/* Uploaded Date */}
-                <p className="text-sm text-gray-500">{file.uploadedAt}</p>
-
-                {/* Action Buttons */}
-                <div className="mt-4 flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition">
-                    <FaEdit className="text-sm" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(file.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                  >
-                    <FaTrash className="text-sm" />
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
+        {/* Table */}
+        <div className="overflow-x-auto shadow rounded-lg">
+          <table className="w-full text-sm text-left text-gray-700">
+            <thead className="bg-gray-100 text-gray-800 uppercase text-xs">
+              <tr>
+                <th className="px-6 py-3">File Name</th>
+                <th className="px-6 py-3">Display Name</th>
+                <th className="px-6 py-3">Category</th>
+                <th className="px-6 py-3">Uploaded At</th>
+                <th className="px-6 py-3 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredFiles.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-10 text-gray-400">
+                    No files found
+                  </td>
+                </tr>
+              ) : (
+                filteredFiles.map((file) => (
+                  <tr key={file.id} className="border-b hover:bg-gray-50 transition">
+                    <td className="px-6 py-3 flex items-center gap-2">
+                      <FaFile className="text-indigo-500" />
+                      <span>{file.name}</span>
+                    </td>
+                    <td className="px-6 py-3">{file.displayName || "-"}</td>
+                    <td className="px-6 py-3">{file.category}</td>
+                    <td className="px-6 py-3">{file.uploadedAt}</td>
+                    <td className="px-6 py-3 text-center">
+                      <button
+                        onClick={() => handleDelete(file.id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
       {/* Drawer */}
       {isDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-opacity-30 backdrop-blur-sm transition-opacity">
-          <div className="bg-white w-full max-w-lg h-full shadow-2xl p-8 overflow-y-auto transform transition-transform duration-300 ease-in-out translate-x-0 rounded-l-3xl">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">
-              Add New File
-            </h3>
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/20 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-md h-full shadow-2xl p-8 overflow-y-auto rounded-l-lg">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Add New File</h3>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  File Type
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                 <select
-                  value={fileType}
-                  onChange={(e) => setFileType(e.target.value as "A" | "B")}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value as Category)}
+                  className="w-full border border-gray-300 rounded-md px-4 py-3 focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value="A">Type A</option>
-                  <option value="B">Type B</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Upload File
+                  Display Name (Optional)
                 </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-indigo-500 transition cursor-pointer">
+                <input
+                  type="text"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Upload Files</label>
+                <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center hover:border-indigo-500 transition">
                   <input
                     type="file"
+                    multiple
                     onChange={handleFileChange}
                     className="hidden"
                     id="file-upload"
-                    required
                   />
-                  <label
-                    htmlFor="file-upload"
-                    className="text-indigo-600 font-medium block"
-                  >
-                    {selectedFile ? selectedFile.name : "Click to upload"}
+                  <label htmlFor="file-upload" className="text-indigo-600 font-medium cursor-pointer">
+                    {sharedFiles.length > 0
+                      ? `${sharedFiles.length} file(s) selected`
+                      : "Click to upload or drag files"}
                   </label>
-                  {!selectedFile && (
-                    <p className="text-xs text-gray-400 mt-1">
-                      PDF, DOC, FIG, etc.
-                    </p>
-                  )}
+                  <p className="text-xs text-gray-400 mt-1">PDF, DOC, FIG, etc.</p>
                 </div>
+
+                {sharedFiles.length > 0 && (
+                  <ul className="mt-3 space-y-2 bg-gray-50 rounded-md p-3 border border-gray-200">
+                    {sharedFiles.map((file, index) => (
+                      <li key={index} className="flex justify-between text-sm text-gray-700">
+                        <span>{file.name}</span>
+                        <span className="text-gray-400 text-xs">
+                          {(file.size / 1024).toFixed(1)} KB
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-3">
                 <button
                   type="submit"
-                  disabled={!selectedFile}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white py-3 rounded-xl font-semibold transition-all"
+                  disabled={!sharedFiles.length}
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-md font-medium transition disabled:bg-gray-300"
                 >
-                  Add File
+                  Add Files
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsDrawerOpen(false);
-                    setSelectedFile(null);
-                  }}
-                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-xl font-semibold transition-all"
+                  onClick={resetForm}
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-md font-medium transition"
                 >
                   Cancel
                 </button>
