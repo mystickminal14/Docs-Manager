@@ -1,13 +1,13 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { PaginatedUserEndpoint } from "../services/UserService";
-import { USER_CACHE_KEY } from "../../constants";
-import type { PaginationResponse, User, PaginationParams } from "../type/User";
+import type { FileModel, PaginationParams, PaginationResponse } from "../type/User";
+import { FILE_CACHE_KEY } from "../../constants";
+import { PaginatedFileEndpoint } from "../services/fileService";
 
 export const useGetFiles = (params: PaginationParams) => {
-  return useQuery<PaginationResponse<User>, Error>({
-    queryKey: [USER_CACHE_KEY, params],
+  return useQuery<PaginationResponse<FileModel>, Error>({
+    queryKey: [FILE_CACHE_KEY, params],
     queryFn: async () => {
-      const response = await PaginatedUserEndpoint.get(params);
+      const response = await PaginatedFileEndpoint.get(params);
       return response;
     },
     placeholderData: keepPreviousData,

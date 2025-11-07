@@ -24,6 +24,17 @@ export interface PaginationResponse<T> {
 
 
 
+export interface FileModel {
+  fileShareId: string;
+  fileName: string;
+  filePath: string;
+  category: string;
+  accessType: "Public" | "Private";
+  sharedBy: string;
+  createdAt: string;
+  displayName?: string;
+  status?: "Active" | "Inactive";
+}
 
 export interface PaginationParams {
   page: number;
