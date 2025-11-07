@@ -25,7 +25,7 @@ export const useChangeDisplayName = () => {
     },
 
     onSuccess: () => {
-      showToast("Display name updated successfully!", "success");
+      showToast("File updated successfully!", "success");
       queryClient.invalidateQueries({ queryKey: [FILE_CACHE_KEY] });
     },
 

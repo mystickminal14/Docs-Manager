@@ -18,7 +18,7 @@ export const DeleteFileEndpoint = (fileShareId: string) => {
   return client.delete();
 };
 
-export const ChangeAccessTypeEndpoint = (fileShareId: string, accessType: "Public" | "Private") => {
+export const ChangeAccessTypeEndpoint = (fileShareId: string, accessType: "Public" | "Closed") => {
   const client = new APIClient<FileModel>(`/files/update-access/${fileShareId}`);
   return client.put({ accessType } as any);
 };

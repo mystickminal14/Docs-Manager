@@ -12,7 +12,7 @@ export const useChangeAccessType = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ fileShareId, accessType }: { fileShareId: string; accessType: "Public" | "Private" }) => {
+    mutationFn: async ({ fileShareId, accessType }: { fileShareId: string; accessType: "Public" | "Closed" }) => {
       return await ChangeAccessTypeEndpoint(fileShareId, accessType);
     },
     onSuccess: () => {

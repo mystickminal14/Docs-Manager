@@ -1,12 +1,7 @@
-<<<<<<< HEAD
 import { useState, useEffect } from "react";
-import { FaFileAlt, FaDownload, FaClock, FaChevronLeft, FaChevronRight, FaExclamationTriangle, FaExternalLinkAlt } from "react-icons/fa";
-=======
-import { useState } from "react";
-import { FaFileAlt, FaDownload, FaClock, FaSignOutAlt } from "react-icons/fa";
->>>>>>> origin/chari
+import { FaFileAlt, FaDownload, FaClock, FaChevronLeft, FaChevronRight, FaExclamationTriangle, FaSignOutAlt } from "react-icons/fa";
 import { useGetFiles } from "../admin/hooks/useAllFiles";
-import { useLogout } from "../admin/hooks/useLogout"; // assuming you have this hook
+import { useLogout } from "../admin/hooks/useLogout";
 import type { FileModel, PaginationParams } from "../admin/type/User";
 import { useParams, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../constants";
@@ -33,7 +28,7 @@ const UserDashboard = () => {
   });
 
   const { data, isLoading, isError } = useGetFiles(pagination);
-  const { mutate: logout } = useLogout(); // logout function
+  const { mutate: logout, isPending: isLoggingOut } = useLogout();
   const files: FileModel[] = data?.data || [];
   const totalPages = data?.info?.lastPage || 1;
 
@@ -50,14 +45,11 @@ const UserDashboard = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleViewFile = (fileShareId: string, ) => {
-    const pdfUrl = `/api/files/shared-file/${fileShareId}`;
-    window.open(pdfUrl, '_blank');
-  };
+ 
 
   const handleDownloadFile = (fileShareId: string, fileName: string) => {
     // Force download using the same endpoint
-    const downloadUrl = `${BASE_URL}/api/files/shared-file/${fileShareId}`;
+    const downloadUrl = `${BASE_URL}/files/shared-file/${fileShareId}`;
     
     const link = document.createElement('a');
     link.href = downloadUrl;
@@ -66,6 +58,20 @@ const UserDashboard = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleLogout = () => {
+    logout(undefined, {
+      onSuccess: () => {
+        // Redirect to login page after successful logout
+        navigate('/');
+      },
+      onError: (error) => {
+        console.error('Logout failed:', error);
+        // Even if API call fails, redirect to login page
+        navigate('/');
+      }
+    });
   };
 
   // Show access denied if no valid category in URL
@@ -80,12 +86,22 @@ const UserDashboard = () => {
           <p className="text-gray-600 mb-6">
             You are not allowed to visit this page without a valid category parameter.
           </p>
-          <button
-            onClick={() => navigate('/')}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200"
-          >
-            Go to Home
-          </button>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => navigate('/')}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200"
+            >
+              Go to Home
+            </button>
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FaSignOutAlt size={14} />
+              {isLoggingOut ? 'Logging out...' : 'Logout'}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -108,6 +124,14 @@ const UserDashboard = () => {
         <div className="text-center text-red-500">
           <p className="text-lg font-semibold">Failed to load files</p>
           <p className="text-sm mt-2">Please try again later</p>
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-4 mx-auto"
+          >
+            <FaSignOutAlt size={14} />
+            {isLoggingOut ? 'Logging out...' : 'Logout'}
+          </button>
         </div>
       </div>
     );
@@ -123,6 +147,18 @@ const UserDashboard = () => {
             <p className="text-gray-600">
               Files in <span className="font-semibold text-blue-600">{selectedCategory.replace("Category", "Category ")}</span>
             </p>
+          </div>
+          
+          {/* Logout Button */}
+          <div className="mt-4 lg:mt-0">
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FaSignOutAlt size={16} />
+              {isLoggingOut ? 'Logging out...' : 'Logout'}
+            </button>
           </div>
         </div>
 
@@ -179,13 +215,7 @@ const UserDashboard = () => {
                     </span>
                   </div>
                   <div className="flex gap-2">
-                    <button
-                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex-1 justify-center"
-                      onClick={() => file.fileShareId && handleViewFile(file.fileShareId)}
-                    >
-                      <FaExternalLinkAlt size={14} />
-                      View PDF
-                    </button>
+                  
                     <button
                       className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex-1 justify-center"
                       onClick={() => file.fileShareId && handleDownloadFile(file.fileShareId, file.fileName || file.displayName || 'document.pdf')}
@@ -208,6 +238,14 @@ const UserDashboard = () => {
             <p className="text-gray-600 max-w-md mx-auto">
               There are no files available in the <span className="font-semibold">{selectedCategory.replace("Category", "Category ")}</span> category.
             </p>
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-6 mx-auto"
+            >
+              <FaSignOutAlt size={14} />
+              {isLoggingOut ? 'Logging out...' : 'Logout'}
+            </button>
           </div>
         )}
 

@@ -18,13 +18,19 @@ export const useLogin = (category?: string) => {
         showToast(data.message || "Login successful!", "success");
 
         const role = data.role;
-
+        console.log(data.role)
         if (role === "Admin") {
+          console.log('FaCheck')
           navigate("/app/manage-files");
         } else if (role === "User") {
-          if (category) navigate(`/dashboard/${category}`);
-          else navigate("/dashboard");
-        } else {
+          console.log(role)
+          if (category)
+            navigate(`/dashboard/${category.charAt(0).toUpperCase() + category.slice(1)}`);
+          else
+            navigate("/dashboard");
+
+        }
+        else {
           showToast("Unexpected role received from server!", "error");
         }
       } else {

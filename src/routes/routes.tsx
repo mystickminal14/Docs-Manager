@@ -1,4 +1,4 @@
-import { createBrowserRouter,  } from "react-router-dom";
+import { createBrowserRouter, } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import NotFoundPage from "../components/NoRouteFound";
 import LoginPage from "../login/page/LoginPage";
@@ -15,19 +15,19 @@ const router = createBrowserRouter([
   {
     path: "*",
     element: <NotFoundPage />,
-  },  {
-        path: "/dashboard/:category?",
-        element: (
-          <RoleProtectedRoute allowedRoles={[ "User"]}>
-            <UserDashboard />
-          </RoleProtectedRoute>
-        ),
-      },
+  }, {
+    path: "/dashboard/:category?",
+    element: (
+      <RoleProtectedRoute allowedRoles={["User"]}>
+        <UserDashboard />
+      </RoleProtectedRoute>
+    ),
+  },
   {
     path: "/app",
     element: <AppLayout />,
     children: [
-    
+
       {
         path: "admin",
         element: (

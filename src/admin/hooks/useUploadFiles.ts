@@ -1,8 +1,9 @@
 // src/hooks/useFileUpload.ts
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FileEndpoint } from "../services/fileService";
 import { AppContext } from "../../context/ContextApp";
 import { useContext } from "react";
+import { FILE_CACHE_KEY } from "../../constants";
 
 interface UploadPayload {
   files: File[];
@@ -17,6 +18,7 @@ export const useFileUpload = () => {
   }
 
   const { showToast } = appContext;
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ files, category, displayName }: UploadPayload) => {
@@ -25,6 +27,7 @@ export const useFileUpload = () => {
     },
     onSuccess: (data) => {
       showToast("Files uploaded successfully!", "success");
+         queryClient.invalidateQueries({queryKey:[FILE_CACHE_KEY]}); 
       console.log("Upload result:", data);
     },
     onError: (error: any) => {
