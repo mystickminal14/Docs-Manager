@@ -172,12 +172,12 @@ import { ChangeDisplayNameDialog } from "./ChangeDisplayName";
                     <td className="px-6 py-4">{(page - 1) * pageSize + index + 1}</td>
                     <td className="px-6 py-4 flex items-center gap-2">
                       <FaFile className="text-indigo-500 flex-shrink-0" />
-                      <span className="truncate max-w-[200px]" title={file.fileName}>
-                        {file.fileName}
+                      <span className="truncate max-w-[200px]" title={file.filePath}>
+                        {file.filePath}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      {file.displayName || (
+                      {file.fileName || (
                         <span className="text-gray-400 italic">No display name</span>
                       )}
                     </td>

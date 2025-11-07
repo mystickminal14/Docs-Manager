@@ -1,37 +1,38 @@
 export interface User {
   fullName: string;
-  userId?:string,
+  userId?: string;
   username: string;
   password: string;
   role?: "Admin" | "User";
   status?: "Active" | "Inactive";
 }
- 
-export interface ChangePassword{
-    password:string
+
+export interface ChangePassword {
+  password: string;
 }
+
 export interface Info {
-    total: number;
-    lastPage: number;
-    prev:number | null;
-    next: number | null;
+  total: number;
+  lastPage: number;
+  prev: number | null;
+  next: number | null;
 }
 
 export interface PaginationResponse<T> {
-    data: T[];
-    info: Info;
+  data: T[];
+  info: Info;
 }
-
-
 
 export interface FileModel {
   fileShareId: string;
   fileName: string;
   filePath: string;
-  category: string;
   accessType: "Public" | "Private";
   sharedBy: string;
   createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  category: "CategoryA" | "CategoryB" | "CategoryC" | "CategoryD" | "CategoryE";
   displayName?: string;
   status?: "Active" | "Inactive";
 }
@@ -41,14 +42,4 @@ export interface PaginationParams {
   pageSize: number;
   seed?: string;
   status?: "active" | "inactive";
-
-}
-type Category = "CategoryA" | "CategoryB" | "CategoryC" | "CategoryD" | "CategoryE";
-
-export interface FileModel {
-  id: number;
-  name: string;
-  category: Category;
-  uploadedAt: string;
-  displayName?: string;
 }
